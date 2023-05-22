@@ -8,9 +8,18 @@ export default function Blog() {
   const [blogs, setBlogs] = useState([]);
   const titleRef = useRef(null);
 
+  //For making currsor into title at first start
   useEffect(() => {
     titleRef.current.focus();
   }, []);
+
+  useEffect(() => {
+    if (blogs.length && blogs[0].title) {
+      document.title = blogs[0].title;
+    } else {
+      document.title = "No blogs!";
+    }
+  }, [blogs]);
   //Passing the synthetic event as argument to stop refreshing the page on submit
   function handleSubmit(e) {
     e.preventDefault();
@@ -55,6 +64,7 @@ export default function Blog() {
           <Row label="Content">
             <textarea
               className="input content"
+              required
               placeholder="Content of the Blog goes here.."
               value={formData.content}
               onChange={(e) =>
