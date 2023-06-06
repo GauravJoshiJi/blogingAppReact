@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { db } from "../firebaseInit";
 
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, onSnapshot } from "firebase/firestore";
 
 export default function Blog() {
   //   const [title, setTitle] = useState("");    Merge these two useStates into one
@@ -27,9 +27,20 @@ export default function Blog() {
   //Passing the synthetic event as argument to stop refreshing the page on submit
 
   useEffect(() => {
-    async function fetchData() {
-      const snapShot = await getDocs(collection(db, "blogs"));
+    // async function fetchData() {
+    //   const snapShot = await getDocs(collection(db, "blogs"));
+    //   const blogs = snapShot.docs.map((doc) => {
+    //     return {
+    //       id: doc.id,
+    //       ...doc.data(),
+    //     };
+    //   });
+    //   console.log(blogs);
+    //   setBlogs(blogs);
+    // }
+    // fetchData();
 
+    const unsub = onSnapshot(collection(db, "blogs"), (snapShot) => {
       const blogs = snapShot.docs.map((doc) => {
         return {
           id: doc.id,
@@ -38,15 +49,14 @@ export default function Blog() {
       });
       console.log(blogs);
       setBlogs(blogs);
-    }
-    fetchData();
+    });
   }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
     titleRef.current.focus();
 
-    setBlogs([{ title: formData.title, content: formData.content }, ...blogs]);
+    //setBlogs([{ title: formData.title, content: formData.content }, ...blogs]);
     // Add a new document with a generated id.
 
     const docRef = doc(collection(db, "blogs"));
