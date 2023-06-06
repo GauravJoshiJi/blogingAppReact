@@ -2,7 +2,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { db } from "../firebaseInit";
 
-import { collection, doc, setDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  setDoc,
+  onSnapshot,
+  deleteDoc,
+} from "firebase/firestore";
 
 export default function Blog() {
   //   const [title, setTitle] = useState("");    Merge these two useStates into one
@@ -70,8 +76,10 @@ export default function Blog() {
     setFormData({ title: "", content: "" });
   }
 
-  function removeBlog(i) {
-    setBlogs(blogs.filter((blog, index) => i !== index));
+  async function removeBlog(i) {
+    // setBlogs(blogs.filter((blog, index) => i !== index));
+    const docRef = doc(db, "blogs", i);
+    await deleteDoc(docRef);
   }
 
   return (
@@ -127,7 +135,7 @@ export default function Blog() {
           <p>{blog.content}</p>
 
           <div className="blog-btn">
-            <button onClick={() => removeBlog(i)} className="btn remove">
+            <button onClick={() => removeBlog(blog.id)} className="btn remove">
               Delete
             </button>
           </div>
