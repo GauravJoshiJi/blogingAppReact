@@ -1,5 +1,9 @@
 //Blogging App using Hooks
 import React, { useState, useRef, useEffect } from "react";
+import { db } from "../firebaseInit";
+
+import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+
 export default function Blog() {
   //   const [title, setTitle] = useState("");    Merge these two useStates into one
   //   const [content, setContent] = useState("");
@@ -21,14 +25,39 @@ export default function Blog() {
     }
   }, [blogs]);
   //Passing the synthetic event as argument to stop refreshing the page on submit
-  function handleSubmit(e) {
-    e.preventDefault();
 
-    setBlogs([{ title: formData.title, content: formData.content }, ...blogs]);
-    setFormData({ title: "", content: "" });
+  useEffect(() => {
+    async function fetchData() {
+      const snapShot = await getDocs(collection(db, "blogs"));
+
+      const blogs = snapShot.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      });
+      console.log(blogs);
+      setBlogs(blogs);
+    }
+    fetchData();
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
     titleRef.current.focus();
 
-    console.log(blogs);
+    setBlogs([{ title: formData.title, content: formData.content }, ...blogs]);
+    // Add a new document with a generated id.
+
+    const docRef = doc(collection(db, "blogs"));
+
+    await setDoc(docRef, {
+      title: formData.title,
+      content: formData.content,
+      createdOn: new Date(),
+    });
+
+    setFormData({ title: "", content: "" });
   }
 
   function removeBlog(i) {
